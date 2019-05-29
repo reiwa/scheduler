@@ -1,0 +1,10 @@
+{
+  "projects": {
+    "default": "kdhsyfmsoqjs",
+    "production": "pico-app"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

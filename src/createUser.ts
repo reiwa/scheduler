@@ -1,15 +1,23 @@
 import { firestore } from 'firebase-admin'
 import { https, region } from 'firebase-functions'
-import { INVALID_ARGUMENT, NOT_FOUND, UNAUTHENTICATED } from './constants/code'
+import {
+  ALREADY_EXISTS,
+  INVALID_ARGUMENT,
+  UNAUTHENTICATED
+} from './constants/code'
 import { USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
+import { CreateUserData } from './types/createUserData'
 import { User } from './types/user'
 import { findMissingKey } from './utils/findMissingKey'
 import { getAuthUser } from './utils/getAuthUser'
 import { systemFields } from './utils/systemFIelds'
 
-const handler = async (data: any, context: https.CallableContext) => {
+const handler = async (
+  data: CreateUserData,
+  context: https.CallableContext
+) => {
   if (data.healthCheck) return Date.now()
 
   const authUser = await getAuthUser(context)
@@ -23,7 +31,7 @@ const handler = async (data: any, context: https.CallableContext) => {
   if (missingArgument) {
     throw new https.HttpsError(
       INVALID_ARGUMENT,
-      message(INVALID_ARGUMENT)(missingArgument)
+      message(INVALID_ARGUMENT, missingArgument)
     )
   }
 
@@ -36,10 +44,7 @@ const handler = async (data: any, context: https.CallableContext) => {
   const userSnap = await userRef.get()
 
   if (userSnap.exists) {
-    throw new https.HttpsError(
-      INVALID_ARGUMENT,
-      message(NOT_FOUND)('user snapshot')
-    )
+    throw new https.HttpsError(ALREADY_EXISTS, message(ALREADY_EXISTS, 'user'))
   }
 
   const newUser: User = {
@@ -49,7 +54,25 @@ const handler = async (data: any, context: https.CallableContext) => {
     username: data.username
   }
 
-  return userRef.set(newUser)
+  const usersRef = firestore()
+    .collection(USERS)
+    .where('username', '==', data.username)
+    .limit(1)
+
+  return firestore().runTransaction(async t => {
+    const usersQuerySnap = await t.get(usersRef)
+
+    if (!usersQuerySnap.empty) {
+      throw new https.HttpsError(
+        ALREADY_EXISTS,
+        message(ALREADY_EXISTS, 'username')
+      )
+    }
+
+    await t.set(userRef, newUser)
+
+    return newUser
+  })
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

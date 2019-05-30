@@ -1,8 +1,7 @@
 import { Doc } from './doc'
 
 export type Tag = Doc & {
-  count: number
-  description: string
+  color: string | null
+  listId: string
   name: string
-  type: string
 }

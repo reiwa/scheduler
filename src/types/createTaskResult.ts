@@ -1,4 +1,4 @@
 import { HealthCheckResult } from './healthCheckResult'
-import { Task } from './task'
+import { Tag } from './tag'
 
-export type CreateTaskResult = HealthCheckResult | Task
+export type CreateTagResult = HealthCheckResult | Tag

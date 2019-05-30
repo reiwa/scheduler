@@ -19,8 +19,12 @@ if (!FUNCTION_NAME || FUNCTION_NAME === 'createProject') {
   exports.createProject = require('./lib/createProject')
 }
 
-if (!FUNCTION_NAME || FUNCTION_NAME === 'createTask') {
-  exports.createTask = require('./lib/createTask')
+if (!FUNCTION_NAME || FUNCTION_NAME === 'removeTaskTags') {
+  exports.removeTaskTags = require('./lib/removeTaskTags')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'unionTaskTags') {
+  exports.unionTaskTags = require('./lib/unionTaskTags')
 }
 
 if (!FUNCTION_NAME || FUNCTION_NAME === 'createUser') {

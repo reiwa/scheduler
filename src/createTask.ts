@@ -27,16 +27,30 @@ const handler = async (
   const missingArgument = findMissingKey(data, [
     'dateStart',
     'dateEnd',
+    'name',
     'projectId',
     'photoURLs',
-    'text',
-    'title'
+    'text'
   ])
 
   if (missingArgument) {
     throw new https.HttpsError(
       INVALID_ARGUMENT,
       message(INVALID_ARGUMENT, missingArgument)
+    )
+  }
+
+  if (data.projectId === '') {
+    throw new https.HttpsError(
+      INVALID_ARGUMENT,
+      message(INVALID_ARGUMENT, 'incalid-projectId')
+    )
+  }
+
+  if (!data.name) {
+    throw new https.HttpsError(
+      INVALID_ARGUMENT,
+      message(INVALID_ARGUMENT, 'invalid-name')
     )
   }
 
@@ -48,6 +62,9 @@ const handler = async (
 
   const newTask: Task = {
     ...systemFields(newTaskId),
+    assigneeId: null,
+    assignee: null,
+    assigneeRef: null,
     dateStart: data.dateStart
       ? firestore.Timestamp.fromMillis(data.dateStart)
       : null,

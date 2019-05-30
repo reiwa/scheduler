@@ -37,7 +37,7 @@
     "pretty-quick": "^1.10.0"
   },
   "engines": {
-    "node": "10"
+    "node": "8"
   },
   "private": true,
   "husky": {

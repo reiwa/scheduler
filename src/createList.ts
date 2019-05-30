@@ -4,18 +4,18 @@ import { INVALID_ARGUMENT, UNAUTHENTICATED } from './constants/code'
 import { PROJECTS, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
-import { CreateProjectData } from './types/createProjectData'
-import { CreateProjectResult } from './types/createProjectResult'
-import { Project } from './types/project'
+import { CreateListData } from './types/createListData'
+import { CreateListResult } from './types/createListResult'
+import { List } from './types/list'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
 import { getAuthUser } from './utils/getAuthUser'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
-  data: CreateProjectData,
+  data: CreateListData,
   context: https.CallableContext
-): Promise<CreateProjectResult> => {
+): Promise<CreateListResult> => {
   if (data.healthCheck) return Date.now()
 
   const authUser = await getAuthUser(context)
@@ -24,7 +24,7 @@ const handler = async (
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
-  const missingArgument = findMissingKey(data, ['name', 'text'])
+  const missingArgument = findMissingKey(data, ['name'])
 
   if (missingArgument) {
     throw new https.HttpsError(
@@ -39,15 +39,15 @@ const handler = async (
     .collection(PROJECTS)
     .doc(newProjectId)
 
-  const newProject: Project = {
+  const newProject: List = {
     ...systemFields(newProjectId),
     isArchived: false,
+    isPrivate: data.isPrivate,
     ownerId: authUser.uid,
     ownerRef: firestore()
       .collection(USERS)
       .doc(authUser.uid),
     owner: authUser,
-    text: data.text,
     name: data.name
   }
 

@@ -15,8 +15,24 @@ if (FUNCTION_NAME) {
   })
 }
 
-if (!FUNCTION_NAME || FUNCTION_NAME === 'createProject') {
-  exports.createProject = require('./lib/createProject')
+if (!FUNCTION_NAME || FUNCTION_NAME === 'createList') {
+  exports.createList = require('./lib/createList')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'createTag') {
+  exports.createTag = require('./lib/createTag')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'createTask') {
+  exports.createTask = require('./lib/createTask')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'createUser') {
+  exports.createUser = require('./lib/createUser')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'deleteList') {
+  exports.deleteList = require('./lib/deleteList')
 }
 
 if (!FUNCTION_NAME || FUNCTION_NAME === 'removeTaskTags') {
@@ -27,6 +43,10 @@ if (!FUNCTION_NAME || FUNCTION_NAME === 'unionTaskTags') {
   exports.unionTaskTags = require('./lib/unionTaskTags')
 }
 
-if (!FUNCTION_NAME || FUNCTION_NAME === 'createUser') {
-  exports.createUser = require('./lib/createUser')
+if (!FUNCTION_NAME || FUNCTION_NAME === 'updateList') {
+  exports.updateList = require('./lib/updateList')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'updateTask') {
+  exports.updateTask = require('./lib/updateTask')
 }

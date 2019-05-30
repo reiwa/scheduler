@@ -9,6 +9,7 @@ import { USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
 import { CreateUserData } from './types/createUserData'
+import { CreateUserResult } from './types/createUserResult'
 import { User } from './types/user'
 import { findMissingKey } from './utils/findMissingKey'
 import { getAuthUser } from './utils/getAuthUser'
@@ -17,7 +18,7 @@ import { systemFields } from './utils/systemFIelds'
 const handler = async (
   data: CreateUserData,
   context: https.CallableContext
-) => {
+): Promise<CreateUserResult> => {
   if (data.healthCheck) return Date.now()
 
   const authUser = await getAuthUser(context)

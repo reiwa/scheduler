@@ -1,3 +1,4 @@
+import { HealthCheckResult } from './healthCheckResult'
 import { Task } from './task'
 
-export type CreateTaskResult = number | Task
+export type CreateTaskResult = HealthCheckResult | Task

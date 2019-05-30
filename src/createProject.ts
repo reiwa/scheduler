@@ -5,6 +5,7 @@ import { PROJECTS, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
 import { CreateProjectData } from './types/createProjectData'
+import { CreateProjectResult } from './types/createProjectResult'
 import { Project } from './types/project'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
@@ -14,7 +15,7 @@ import { systemFields } from './utils/systemFIelds'
 const handler = async (
   data: CreateProjectData,
   context: https.CallableContext
-) => {
+): Promise<CreateProjectResult> => {
   if (data.healthCheck) return Date.now()
 
   const authUser = await getAuthUser(context)
@@ -50,7 +51,9 @@ const handler = async (
     name: data.name
   }
 
-  return newProjectRef.set(newProject)
+  await newProjectRef.set(newProject)
+
+  return newProject
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

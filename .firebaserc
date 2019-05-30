@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "kdhsyfmsoqjs",
-    "production": "pico-app"
+    "default": "picon-app",
+    "develop": "kdhsyfmsoqjs"
   },
   "firestore": {
     "rules": "firestore.rules",

@@ -69,6 +69,7 @@ const handler = async (
       ? firestore.Timestamp.fromMillis(data.dateStart)
       : null,
     dateEnd: data.dateEnd ? firestore.Timestamp.fromMillis(data.dateEnd) : null,
+    name: data.name,
     isDone: false,
     ownerId: authUser.uid,
     ownerRef: firestore()
@@ -80,8 +81,10 @@ const handler = async (
       .collection(PROJECTS)
       .doc(data.projectId),
     photoURLs: data.photoURLs,
-    text: data.text,
-    title: data.title
+    tagIds: [],
+    tagRefs: [],
+    tags: [],
+    text: data.text
   }
 
   const projectRef = firestore()

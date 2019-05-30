@@ -1,6 +1,7 @@
 import { firestore } from 'firebase-admin'
 import { Doc } from './doc'
 import { Owner } from './owner'
+import { TagEmbedded } from './tagEmbedded'
 
 export type Task = Doc & {
   assigneeId: string | null
@@ -16,5 +17,8 @@ export type Task = Doc & {
   projectId: string | null
   projectRef: firestore.DocumentReference | null
   photoURLs: string[]
+  tagIds: string[]
+  tagRefs: firestore.DocumentReference[]
+  tags: TagEmbedded[]
   text: string | null
 }

@@ -1,34 +1,32 @@
 import { https, region } from 'firebase-functions'
 import { INVALID_ARGUMENT, UNAUTHENTICATED } from './constants/code'
 import { ASIA_NORTHEAST1 } from './constants/region'
-import { message } from './helpers/message'
-import { CreateListData } from './types/createListData'
-import { CreateTagResult } from './types/createTaskResult'
+import { CreateTagData } from './types/createTagData'
+import { CreateTagResult } from './types/createTagResult'
 import { Tag } from './types/tag'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
-import { getAuthUser } from './utils/getAuthUser'
+import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
-  data: CreateListData,
+  data: CreateTagData,
   context: https.CallableContext
 ): Promise<CreateTagResult> => {
   if (data.healthCheck) return Date.now()
 
-  const authUser = await getAuthUser(context)
+  const userRecord = await getUserRecord(context)
 
-  if (!authUser) {
+  if (!userRecord) {
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
   const missingArgument = findMissingKey(data, ['name'])
 
   if (missingArgument) {
-    throw new https.HttpsError(
-      INVALID_ARGUMENT,
-      message(INVALID_ARGUMENT, missingArgument)
-    )
+    throw new https.HttpsError(INVALID_ARGUMENT, INVALID_ARGUMENT, {
+      missingArgument
+    })
   }
 
   const tagId = createId()
@@ -37,7 +35,7 @@ const handler = async (
     ...systemFields(tagId),
     color: null,
     listId: createId(),
-    name: 'fake-name'
+    name: data.name
   }
 
   return newTag

@@ -1,5 +1,5 @@
 export type Owner = {
-  displayName: string
+  displayName: string | null
   uid: string
-  photoURL: string
+  photoURL: string | null
 }

@@ -4,21 +4,21 @@ import { Owner } from './owner'
 import { TagEmbedded } from './tagEmbedded'
 
 export type Task = Doc & {
-  assigneeId: string | null
   assignee: Owner | null
+  assigneeId: string | null
   assigneeRef: firestore.DocumentReference | null
-  dateStart: firestore.Timestamp | null
+  description: string | null
   dateEnd: firestore.Timestamp | null
-  name: string
+  dateStart: firestore.Timestamp | null
   isDone: boolean
+  listId: string | null
+  listRef: firestore.DocumentReference | null
+  name: string
+  owner: Owner
   ownerId: string
   ownerRef: firestore.DocumentReference
-  owner: Owner
-  projectId: string | null
-  projectRef: firestore.DocumentReference | null
   photoURLs: string[]
   tagIds: string[]
   tagRefs: firestore.DocumentReference[]
   tags: TagEmbedded[]
-  text: string | null
 }

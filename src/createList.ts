@@ -1,15 +1,16 @@
 import { firestore } from 'firebase-admin'
 import { https, region } from 'firebase-functions'
 import { INVALID_ARGUMENT, UNAUTHENTICATED } from './constants/code'
-import { PROJECTS, USERS } from './constants/collection'
+import { LISTS, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
+import { toOwner } from './helpers/toOwner'
 import { CreateListData } from './types/createListData'
 import { CreateListResult } from './types/createListResult'
 import { List } from './types/list'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
-import { getAuthUser } from './utils/getAuthUser'
+import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
@@ -18,13 +19,13 @@ const handler = async (
 ): Promise<CreateListResult> => {
   if (data.healthCheck) return Date.now()
 
-  const authUser = await getAuthUser(context)
+  const userRecord = await getUserRecord(context)
 
-  if (!authUser) {
+  if (!userRecord) {
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
-  const missingArgument = findMissingKey(data, ['name'])
+  const missingArgument = findMissingKey(data, ['description', 'name'])
 
   if (missingArgument) {
     throw new https.HttpsError(
@@ -33,27 +34,32 @@ const handler = async (
     )
   }
 
-  const newProjectId = createId()
+  const newListId = createId()
 
-  const newProjectRef = firestore()
-    .collection(PROJECTS)
-    .doc(newProjectId)
+  const newListRef = firestore()
+    .collection(LISTS)
+    .doc(newListId)
 
-  const newProject: List = {
-    ...systemFields(newProjectId),
+  const ownerRef = firestore()
+    .collection(USERS)
+    .doc(userRecord.uid)
+
+  const newList: List = {
+    ...systemFields(newListId),
+    description: data.description || null,
     isArchived: false,
     isPrivate: data.isPrivate,
-    ownerId: authUser.uid,
-    ownerRef: firestore()
-      .collection(USERS)
-      .doc(authUser.uid),
-    owner: authUser,
-    name: data.name
+    memberIds: [userRecord.uid],
+    members: [toOwner(userRecord)],
+    name: data.name,
+    owner: toOwner(userRecord),
+    ownerId: userRecord.uid,
+    ownerRef
   }
 
-  await newProjectRef.set(newProject)
+  await newListRef.set(newList)
 
-  return newProject
+  return newList
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

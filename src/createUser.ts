@@ -8,11 +8,12 @@ import {
 import { USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
+import { toOwner } from './helpers/toOwner'
 import { CreateUserData } from './types/createUserData'
 import { CreateUserResult } from './types/createUserResult'
 import { User } from './types/user'
 import { findMissingKey } from './utils/findMissingKey'
-import { getAuthUser } from './utils/getAuthUser'
+import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
@@ -21,9 +22,9 @@ const handler = async (
 ): Promise<CreateUserResult> => {
   if (data.healthCheck) return Date.now()
 
-  const authUser = await getAuthUser(context)
+  const userRecord = await getUserRecord(context)
 
-  if (!authUser) {
+  if (!userRecord) {
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
@@ -36,7 +37,7 @@ const handler = async (
     )
   }
 
-  const userId = authUser.uid
+  const userId = userRecord.uid
 
   const userRef = firestore()
     .collection(USERS)
@@ -50,7 +51,7 @@ const handler = async (
 
   const newUser: User = {
     ...systemFields(userId),
-    displayName: authUser.displayName,
+    displayName: toOwner(userRecord).displayName,
     photoURL: data.photoURL,
     username: data.username
   }
@@ -64,10 +65,7 @@ const handler = async (
     const usersQuerySnap = await t.get(usersRef)
 
     if (!usersQuerySnap.empty) {
-      throw new https.HttpsError(
-        ALREADY_EXISTS,
-        message(ALREADY_EXISTS, 'username')
-      )
+      throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS)
     }
 
     await t.set(userRef, newUser)

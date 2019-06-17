@@ -1,15 +1,16 @@
 import { firestore } from 'firebase-admin'
 import { https, region } from 'firebase-functions'
 import { INVALID_ARGUMENT, NOT_FOUND, UNAUTHENTICATED } from './constants/code'
-import { PROJECTS, TASKS, USERS } from './constants/collection'
+import { LISTS, TASKS, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
+import { toOwner } from './helpers/toOwner'
 import { CreateTaskData } from './types/createTaskData'
 import { CreateTaskResult } from './types/createTaskResult'
 import { Task } from './types/task'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
-import { getAuthUser } from './utils/getAuthUser'
+import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
@@ -18,19 +19,19 @@ const handler = async (
 ): Promise<CreateTaskResult> => {
   if (data.healthCheck) return Date.now()
 
-  const authUser = await getAuthUser(context)
+  const userRecord = await getUserRecord(context)
 
-  if (!authUser) {
+  if (!userRecord) {
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
   const missingArgument = findMissingKey(data, [
+    'description',
     'dateStart',
     'dateEnd',
     'name',
-    'projectId',
-    'photoURLs',
-    'text'
+    'listId',
+    'photoURLs'
   ])
 
   if (missingArgument) {
@@ -40,10 +41,10 @@ const handler = async (
     )
   }
 
-  if (data.projectId === '') {
+  if (data.listId === '') {
     throw new https.HttpsError(
       INVALID_ARGUMENT,
-      message(INVALID_ARGUMENT, 'incalid-projectId')
+      message(INVALID_ARGUMENT, 'incalid-listId')
     )
   }
 
@@ -60,42 +61,44 @@ const handler = async (
     .collection(TASKS)
     .doc(newTaskId)
 
+  const listRef = firestore()
+    .collection(LISTS)
+    .doc(data.listId)
+
+  const ownerRef = firestore()
+    .collection(USERS)
+    .doc(userRecord.uid)
+
   const newTask: Task = {
     ...systemFields(newTaskId),
     assigneeId: null,
     assignee: null,
     assigneeRef: null,
+    description: data.description || null,
     dateStart: data.dateStart
       ? firestore.Timestamp.fromMillis(data.dateStart)
       : null,
     dateEnd: data.dateEnd ? firestore.Timestamp.fromMillis(data.dateEnd) : null,
     name: data.name,
     isDone: false,
-    ownerId: authUser.uid,
-    ownerRef: firestore()
-      .collection(USERS)
-      .doc(authUser.uid),
-    owner: authUser,
-    projectId: data.projectId,
-    projectRef: firestore()
-      .collection(PROJECTS)
-      .doc(data.projectId),
+    ownerId: userRecord.uid,
+    ownerRef,
+    owner: toOwner(userRecord),
+    listId: data.listId,
+    listRef,
     photoURLs: data.photoURLs,
     tagIds: [],
     tagRefs: [],
-    tags: [],
-    text: data.text
+    tags: []
   }
 
-  const projectRef = firestore()
-    .collection(PROJECTS)
-    .doc(data.projectId)
-
   return firestore().runTransaction(async t => {
-    const projectSnap = await t.get(projectRef)
+    const listSnap = await t.get(listRef)
 
-    if (!projectSnap.exists) {
-      throw new https.HttpsError(NOT_FOUND, message(NOT_FOUND, 'project'))
+    if (!listSnap.exists) {
+      throw new https.HttpsError(NOT_FOUND, NOT_FOUND, {
+        path: `${LISTS}/${data.listId}`
+      })
     }
 
     await t.set(newTaskRef, newTask)

@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin'
+import { auth, firestore } from 'firebase-admin'
 import { https, region } from 'firebase-functions'
 import {
   ALREADY_EXISTS,
@@ -68,38 +68,46 @@ const handler = async (
     username: data.username
   }
 
-  return firestore().runTransaction(async t => {
-    const userSnap = await t.get(userRef)
+  try {
+    await firestore().runTransaction(async t => {
+      const userSnap = await t.get(userRef)
 
-    if (userSnap.exists) {
-      throw new https.HttpsError(
-        ALREADY_EXISTS,
-        message(ALREADY_EXISTS, 'user')
-      )
-    }
+      if (userSnap.exists) {
+        throw new https.HttpsError(
+          ALREADY_EXISTS,
+          message(ALREADY_EXISTS, 'user')
+        )
+      }
 
-    const user = userSnap.data() as User
+      const user = userSnap.data() as User
 
-    const usernameSnap = await t.get(usernameRef)
+      const usernameSnap = await t.get(usernameRef)
 
-    if (usernameSnap.exists) {
-      throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS)
-    }
+      if (usernameSnap.exists) {
+        throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS)
+      }
 
-    if (user.username) {
-      const lastUsernameRef = firestore()
-        .collection(USERNAMES)
-        .doc(user.username)
+      if (user.username) {
+        const lastUsernameRef = firestore()
+          .collection(USERNAMES)
+          .doc(user.username)
 
-      t.delete(lastUsernameRef)
-    }
+        t.delete(lastUsernameRef)
+      }
 
-    t.set(usernameRef, newUsername)
+      t.set(usernameRef, newUsername)
 
-    t.set(userRef, newUser)
+      t.set(userRef, newUser)
+    })
+
+    await auth().setCustomUserClaims(userId, {
+      username: data.username
+    })
 
     return { userId }
-  })
+  } catch (e) {
+    throw e
+  }
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

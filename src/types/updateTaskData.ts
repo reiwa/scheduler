@@ -1,5 +1,4 @@
-import { HealthCheckData } from './healthCheck'
-
-export type UpdateTaskData = HealthCheckData & {
+export type UpdateTaskData = {
   name: string
+  taskId: string
 }

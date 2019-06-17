@@ -7,6 +7,8 @@ import { message } from './helpers/message'
 import { toOwner } from './helpers/toOwner'
 import { CreateListData } from './types/createListData'
 import { CreateListResult } from './types/createListResult'
+import { HealthCheckData } from './types/healthCheck'
+import { HealthCheckResult } from './types/healthCheckResult'
 import { List } from './types/list'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
@@ -14,9 +16,9 @@ import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
-  data: CreateListData,
+  data: CreateListData & HealthCheckData,
   context: https.CallableContext
-): Promise<CreateListResult> => {
+): Promise<CreateListResult | HealthCheckResult> => {
   if (data.healthCheck) return Date.now()
 
   const userRecord = await getUserRecord(context)
@@ -59,7 +61,7 @@ const handler = async (
 
   await newListRef.set(newList)
 
-  return newList
+  return { listId: newListId }
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

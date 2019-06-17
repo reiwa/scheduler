@@ -2,15 +2,17 @@ import { https, region } from 'firebase-functions'
 import { INVALID_ARGUMENT, UNAUTHENTICATED } from './constants/code'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
+import { HealthCheckData } from './types/healthCheck'
+import { HealthCheckResult } from './types/healthCheckResult'
 import { UpdateTaskData } from './types/updateTaskData'
 import { UpdateTaskResult } from './types/updateTaskResult'
 import { findMissingKey } from './utils/findMissingKey'
 import { getAuthUser } from './utils/getAuthUser'
 
 const handler = async (
-  data: UpdateTaskData,
+  data: UpdateTaskData & HealthCheckData,
   context: https.CallableContext
-): Promise<UpdateTaskResult> => {
+): Promise<UpdateTaskResult | HealthCheckResult> => {
   if (data.healthCheck) return Date.now()
 
   const authUser = await getAuthUser(context)
@@ -28,7 +30,7 @@ const handler = async (
     )
   }
 
-  return null
+  return { taskId: data.taskId }
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

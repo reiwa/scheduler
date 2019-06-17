@@ -1,6 +1,4 @@
-import { HealthCheckData } from './healthCheck'
-
-export type CreateListData = HealthCheckData & {
+export type CreateListData = {
   description: string | null
   isPrivate: boolean
   name: string

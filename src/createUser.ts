@@ -11,15 +11,17 @@ import { message } from './helpers/message'
 import { toOwner } from './helpers/toOwner'
 import { CreateUserData } from './types/createUserData'
 import { CreateUserResult } from './types/createUserResult'
+import { HealthCheckData } from './types/healthCheck'
+import { HealthCheckResult } from './types/healthCheckResult'
 import { User } from './types/user'
 import { findMissingKey } from './utils/findMissingKey'
 import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
-  data: CreateUserData,
+  data: CreateUserData & HealthCheckData,
   context: https.CallableContext
-): Promise<CreateUserResult> => {
+): Promise<CreateUserResult | HealthCheckResult> => {
   if (data.healthCheck) return Date.now()
 
   const userRecord = await getUserRecord(context)
@@ -70,7 +72,7 @@ const handler = async (
 
     await t.set(userRef, newUser)
 
-    return newUser
+    return { userId }
   })
 }
 

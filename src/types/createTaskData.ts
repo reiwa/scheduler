@@ -1,6 +1,4 @@
-import { HealthCheckData } from './healthCheck'
-
-export type CreateTaskData = HealthCheckData & {
+export type CreateTaskData = {
   dateEnd: number | null
   dateStart: number | null
   description: string | null

@@ -7,6 +7,8 @@ import { message } from './helpers/message'
 import { toOwner } from './helpers/toOwner'
 import { CreateTaskData } from './types/createTaskData'
 import { CreateTaskResult } from './types/createTaskResult'
+import { HealthCheckData } from './types/healthCheck'
+import { HealthCheckResult } from './types/healthCheckResult'
 import { Task } from './types/task'
 import { createId } from './utils/createId'
 import { findMissingKey } from './utils/findMissingKey'
@@ -14,9 +16,9 @@ import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
-  data: CreateTaskData,
+  data: CreateTaskData & HealthCheckData,
   context: https.CallableContext
-): Promise<CreateTaskResult> => {
+): Promise<CreateTaskResult | HealthCheckResult> => {
   if (data.healthCheck) return Date.now()
 
   const userRecord = await getUserRecord(context)

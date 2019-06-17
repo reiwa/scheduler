@@ -1,3 +1,1 @@
-import { HealthCheckResult } from './healthCheckResult'
-
-export type UpdateTaskResult = HealthCheckResult | null
+export type UpdateTaskResult = { taskId: string }

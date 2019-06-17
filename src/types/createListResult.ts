@@ -1,4 +1,1 @@
-import { HealthCheckResult } from './healthCheckResult'
-import { List } from './list'
-
-export type CreateListResult = HealthCheckResult | List
+export type CreateListResult = { listId: string }

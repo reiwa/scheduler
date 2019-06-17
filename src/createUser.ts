@@ -5,7 +5,7 @@ import {
   INVALID_ARGUMENT,
   UNAUTHENTICATED
 } from './constants/code'
-import { USERS } from './constants/collection'
+import { USERNAMES, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
 import { toOwner } from './helpers/toOwner'
@@ -14,6 +14,7 @@ import { CreateUserResult } from './types/createUserResult'
 import { HealthCheckData } from './types/healthCheck'
 import { HealthCheckResult } from './types/healthCheckResult'
 import { User } from './types/user'
+import { Username } from './types/username'
 import { findMissingKey } from './utils/findMissingKey'
 import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
@@ -39,16 +40,25 @@ const handler = async (
     )
   }
 
+  // allow a-z and A-z and 0-9 and '_' and '-'
+  if (data.username.match(/^[a-zA-Z0-9_\-.]{3,15}$/) === null) {
+    throw new https.HttpsError(INVALID_ARGUMENT, INVALID_ARGUMENT)
+  }
+
   const userId = userRecord.uid
 
   const userRef = firestore()
     .collection(USERS)
     .doc(userId)
 
-  const userSnap = await userRef.get()
+  const usernameRef = firestore()
+    .collection(USERNAMES)
+    .doc(data.username)
 
-  if (userSnap.exists) {
-    throw new https.HttpsError(ALREADY_EXISTS, message(ALREADY_EXISTS, 'user'))
+  const newUsername: Username = {
+    ...systemFields(data.username),
+    username: data.username,
+    ownerId: userId
   }
 
   const newUser: User = {
@@ -58,19 +68,35 @@ const handler = async (
     username: data.username
   }
 
-  const usersRef = firestore()
-    .collection(USERS)
-    .where('username', '==', data.username)
-    .limit(1)
-
   return firestore().runTransaction(async t => {
-    const usersQuerySnap = await t.get(usersRef)
+    const userSnap = await t.get(userRef)
 
-    if (!usersQuerySnap.empty) {
+    if (userSnap.exists) {
+      throw new https.HttpsError(
+        ALREADY_EXISTS,
+        message(ALREADY_EXISTS, 'user')
+      )
+    }
+
+    const user = userSnap.data() as User
+
+    const usernameSnap = await t.get(usernameRef)
+
+    if (usernameSnap.exists) {
       throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS)
     }
 
-    await t.set(userRef, newUser)
+    if (user.username) {
+      const lastUsernameRef = firestore()
+        .collection(USERNAMES)
+        .doc(user.username)
+
+      t.delete(lastUsernameRef)
+    }
+
+    t.set(usernameRef, newUsername)
+
+    t.set(userRef, newUser)
 
     return { userId }
   })

@@ -1,12 +1,11 @@
 import { auth } from 'firebase-admin'
-import { CustomClaims } from '../types/customClaims'
 import { Owner } from '../types/owner'
 
-export const toOwner = (userRecord: auth.UserRecord): Owner<CustomClaims> => {
+export const toOwner = <T>(userRecord: auth.UserRecord): Owner<T> => {
   return {
     displayName: userRecord.displayName || null,
     photoURL: userRecord.photoURL || null,
     uid: userRecord.uid,
-    customClaims: userRecord.customClaims as CustomClaims
+    customClaims: (userRecord.customClaims as T) || null
   }
 }

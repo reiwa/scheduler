@@ -27,7 +27,11 @@ const handler = async (
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
-  const missingArgument = findMissingKey(data, ['description', 'name'])
+  const missingArgument = findMissingKey(data, [
+    'description',
+    'isPrivate',
+    'name'
+  ])
 
   if (missingArgument) {
     throw new https.HttpsError(

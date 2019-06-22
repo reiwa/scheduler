@@ -45,6 +45,8 @@ const handler = async (
     throw new https.HttpsError(INVALID_ARGUMENT, INVALID_ARGUMENT)
   }
 
+  data.username = data.username.toLocaleLowerCase()
+
   const userId = userRecord.uid
 
   const userRef = firestore()
@@ -79,20 +81,10 @@ const handler = async (
         )
       }
 
-      const user = userSnap.data() as User
-
       const usernameSnap = await t.get(usernameRef)
 
       if (usernameSnap.exists) {
         throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS)
-      }
-
-      if (user.username) {
-        const lastUsernameRef = firestore()
-          .collection(USERNAMES)
-          .doc(user.username)
-
-        t.delete(lastUsernameRef)
       }
 
       t.set(usernameRef, newUsername)

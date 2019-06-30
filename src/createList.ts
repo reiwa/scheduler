@@ -57,11 +57,11 @@ const handler = async (
     isPrivate: data.isPrivate,
     memberIds: [userRecord.uid],
     members: [toOwner(userRecord)],
-    memberRefs: [userRecord.uid].map(memberId => {
-      return firestore()
+    memberRefs: [
+      firestore()
         .collection(USERS)
-        .doc(memberId)
-    }),
+        .doc(userRecord.uid)
+    ],
     name: data.name,
     owner: toOwner(userRecord),
     ownerId: userRecord.uid,

@@ -18,8 +18,16 @@ admin.initializeApp({
   storageBucket: `${projectId}.appspot.com`
 })
 
+if (!FUNCTION_NAME || FUNCTION_NAME === 'acceptListInvitation') {
+  exports.acceptListInvitation = require('./lib/acceptListInvitation')
+}
+
 if (!FUNCTION_NAME || FUNCTION_NAME === 'createList') {
   exports.createList = require('./lib/createList')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'createListInvitation') {
+  exports.createListInvitation = require('./lib/createListInvitation')
 }
 
 if (!FUNCTION_NAME || FUNCTION_NAME === 'createTag') {

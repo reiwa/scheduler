@@ -4,6 +4,6 @@ export type UpdateListData = {
   isPrivate?: boolean
   memberIds?: string[]
   name?: string
-  ownerId: string
+  ownerId?: string
   listId: string
 }

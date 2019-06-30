@@ -1,7 +1,7 @@
 import { auth, firestore } from 'firebase-admin'
 import { https, region } from 'firebase-functions'
 import { INVALID_ARGUMENT, NOT_FOUND, UNAUTHENTICATED } from './constants/code'
-import { TASKS, USERS } from './constants/collection'
+import { LISTS, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
 import { toOwner } from './helpers/toOwner'
@@ -93,7 +93,7 @@ const handler = async (
   }
 
   await firestore()
-    .collection(TASKS)
+    .collection(LISTS)
     .doc(data.listId)
     .update(listChange)
 

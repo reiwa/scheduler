@@ -34,6 +34,10 @@ if (!FUNCTION_NAME || FUNCTION_NAME === 'createUser') {
   exports.createUser = require('./lib/createUser')
 }
 
+if (!FUNCTION_NAME || FUNCTION_NAME === 'onDeleteList') {
+  exports.onDeleteList = require('./lib/onDeleteList')
+}
+
 if (!FUNCTION_NAME || FUNCTION_NAME === 'removeTaskTags') {
   exports.removeTaskTags = require('./lib/removeTaskTags')
 }

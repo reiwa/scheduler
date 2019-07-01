@@ -66,6 +66,8 @@ const handler = async (
   const newUser: User = {
     ...systemFields(userId),
     displayName: toOwner(userRecord).displayName,
+    followeeCount: 0,
+    followerCount: 0,
     photoURL: data.photoURL,
     username: data.username
   }

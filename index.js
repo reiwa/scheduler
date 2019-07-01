@@ -22,6 +22,10 @@ if (!FUNCTION_NAME || FUNCTION_NAME === 'acceptListInvitation') {
   exports.acceptListInvitation = require('./lib/acceptListInvitation')
 }
 
+if (!FUNCTION_NAME || FUNCTION_NAME === 'createFollowee') {
+  exports.createFollowee = require('./lib/createFollowee')
+}
+
 if (!FUNCTION_NAME || FUNCTION_NAME === 'createList') {
   exports.createList = require('./lib/createList')
 }
@@ -40,6 +44,14 @@ if (!FUNCTION_NAME || FUNCTION_NAME === 'createTask') {
 
 if (!FUNCTION_NAME || FUNCTION_NAME === 'createUser') {
   exports.createUser = require('./lib/createUser')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'onCreateFollowee') {
+  exports.onCreateFollowee = require('./lib/onCreateFollowee')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'onDeleteFollowee') {
+  exports.onDeleteFollowee = require('./lib/onDeleteFollowee')
 }
 
 if (!FUNCTION_NAME || FUNCTION_NAME === 'onDeleteList') {

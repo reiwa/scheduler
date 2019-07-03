@@ -68,7 +68,8 @@ const handler = async (
     const followee: Followee = {
       ...systemFields(userSnap.id),
       displayName: user.displayName,
-      photoURL: user.photoURL
+      photoURL: user.photoURL,
+      username: user.username
     }
 
     const followeeSnap = await t.get(followeeRef)

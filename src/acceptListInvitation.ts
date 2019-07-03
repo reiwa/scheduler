@@ -52,7 +52,7 @@ const handler = async (
 
     if (!listSnap) {
       throw new https.HttpsError(NOT_FOUND, NOT_FOUND, {
-        path: `/${LISTS}/${data.invitationId}`
+        path: `/${LISTS}/${data.listId}`
       })
     }
 
@@ -60,7 +60,7 @@ const handler = async (
 
     if (!invitationSnap) {
       throw new https.HttpsError(NOT_FOUND, NOT_FOUND, {
-        path: `/${LISTS}/${data.invitationId}`
+        path: `/${LISTS}/${data.listId}/${INVITATIONS}/${data.invitationId}`
       })
     }
 
@@ -70,7 +70,7 @@ const handler = async (
       throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS, {})
     }
 
-    await listRef.update({
+    await t.update(listRef, {
       memberIds: firestore.FieldValue.arrayUnion(userRecord.uid),
       members: firestore.FieldValue.arrayUnion(toOwner(userRecord)),
       memberRefs: firestore.FieldValue.arrayUnion(

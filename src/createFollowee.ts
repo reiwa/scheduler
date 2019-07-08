@@ -10,6 +10,7 @@ import {
 import { FOLLOWEES, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
+import { toOwner } from './helpers/toOwner'
 import { CreateFolloweeData } from './types/createFolloweeData'
 import { CreateFolloweeResult } from './types/createFolloweeResult'
 import { Followee } from './types/followee'
@@ -69,7 +70,9 @@ const handler = async (
       ...systemFields(userSnap.id),
       displayName: user.displayName,
       photoURL: user.photoURL,
-      username: user.username
+      username: user.username,
+      ownerId: userRecord.uid,
+      owner: toOwner(userRecord)
     }
 
     const followeeSnap = await t.get(followeeRef)

@@ -8,11 +8,10 @@ import {
 import { USERNAMES, USERS } from './constants/collection'
 import { ASIA_NORTHEAST1 } from './constants/region'
 import { message } from './helpers/message'
-import { toOwner } from './helpers/toOwner'
-import { CreateUserData } from './types/createUserData'
-import { CreateUserResult } from './types/createUserResult'
 import { HealthCheckData } from './types/healthCheck'
 import { HealthCheckResult } from './types/healthCheckResult'
+import { UpdateUsernameData } from './types/updateUsernameData'
+import { UpdateUsernameResult } from './types/updateUsernameResult'
 import { User } from './types/user'
 import { Username } from './types/username'
 import { findMissingKey } from './utils/findMissingKey'
@@ -20,9 +19,9 @@ import { getUserRecord } from './utils/getUserRecord'
 import { systemFields } from './utils/systemFIelds'
 
 const handler = async (
-  data: CreateUserData & HealthCheckData,
+  data: UpdateUsernameData & HealthCheckData,
   context: https.CallableContext
-): Promise<CreateUserResult | HealthCheckResult> => {
+): Promise<UpdateUsernameResult | HealthCheckResult> => {
   if (data.healthCheck) return Date.now()
 
   const userRecord = await getUserRecord(context)
@@ -63,46 +62,45 @@ const handler = async (
     ownerId: userId
   }
 
-  const newUser: User = {
-    ...systemFields(userId),
-    description: '',
-    displayName: toOwner(userRecord).displayName,
-    followeeCount: 0,
-    followerCount: 0,
-    photoURL: data.photoURL,
+  const userChange: Partial<User> = { username: data.username }
+
+  await firestore().runTransaction(async t => {
+    const userSnap = await t.get(userRef)
+
+    if (userSnap.exists) {
+      throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS, {
+        path: `/users/${userId}`
+      })
+    }
+
+    const usernameSnap = await t.get(usernameRef)
+
+    if (usernameSnap.exists) {
+      throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS, {
+        path: `/usernames/${data.username}`
+      })
+    }
+
+    const user = userSnap.data() as User
+
+    t.set(usernameRef, newUsername)
+
+    if (user.username) {
+      const lastUsernameRef = firestore()
+        .collection(USERNAMES)
+        .doc(user.username)
+
+      t.delete(lastUsernameRef)
+    }
+
+    t.update(userRef, userChange)
+  })
+
+  await auth().setCustomUserClaims(userId, {
     username: data.username
-  }
+  })
 
-  try {
-    await firestore().runTransaction(async t => {
-      const userSnap = await t.get(userRef)
-
-      if (userSnap.exists) {
-        throw new https.HttpsError(
-          ALREADY_EXISTS,
-          message(ALREADY_EXISTS, 'user')
-        )
-      }
-
-      const usernameSnap = await t.get(usernameRef)
-
-      if (usernameSnap.exists) {
-        throw new https.HttpsError(ALREADY_EXISTS, ALREADY_EXISTS)
-      }
-
-      t.set(usernameRef, newUsername)
-
-      t.set(userRef, newUser)
-    })
-
-    await auth().setCustomUserClaims(userId, {
-      username: data.username
-    })
-
-    return { userId }
-  } catch (e) {
-    throw e
-  }
+  return { userId }
 }
 
 module.exports = region(ASIA_NORTHEAST1).https.onCall(handler)

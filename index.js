@@ -73,3 +73,11 @@ if (!FUNCTION_NAME || FUNCTION_NAME === 'updateList') {
 if (!FUNCTION_NAME || FUNCTION_NAME === 'updateTask') {
   exports.updateTask = require('./lib/updateTask')
 }
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'updateUser') {
+  exports.updateUser = require('./lib/updateUser')
+}
+
+if (!FUNCTION_NAME || FUNCTION_NAME === 'updateUsername') {
+  exports.updateUsername = require('./lib/updateUsername')
+}

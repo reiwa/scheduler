@@ -11,7 +11,7 @@ import { Task } from './types/task'
 import { UpdateTaskData } from './types/updateTaskData'
 import { UpdateTaskResult } from './types/updateTaskResult'
 import { findMissingKey } from './utils/findMissingKey'
-import { getAuthUser } from './utils/getAuthUser'
+import { getUserRecord } from './utils/getUserRecord'
 import { systemChangeFields } from './utils/systemChangeFIelds'
 
 const handler = async (
@@ -20,9 +20,9 @@ const handler = async (
 ): Promise<UpdateTaskResult | HealthCheckResult> => {
   if (data.healthCheck) return Date.now()
 
-  const authUser = await getAuthUser(context)
+  const userRecord = await getUserRecord(context)
 
-  if (!authUser) {
+  if (!userRecord) {
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 

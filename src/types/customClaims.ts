@@ -1,3 +1,1 @@
-export type CustomClaims = {
-  username: string | null
-}
+export type CustomClaims = { username: string | null }

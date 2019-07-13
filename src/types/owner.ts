@@ -1,6 +1,6 @@
 export type Owner<T> = {
-  displayName: string | null
-  uid: string
-  photoURL: string | null
   customClaims: T | null
+  displayName: string | null
+  photoURL: string | null
+  uid: string
 }

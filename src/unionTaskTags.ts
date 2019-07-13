@@ -1,7 +1,7 @@
 import { https, region } from 'firebase-functions'
 import { UNAUTHENTICATED } from './constants/code'
 import { ASIA_NORTHEAST1 } from './constants/region'
-import { getAuthUser } from './utils/getAuthUser'
+import { getUserRecord } from './utils/getUserRecord'
 
 const handler = async (
   data: any,
@@ -9,9 +9,9 @@ const handler = async (
 ): Promise<any> => {
   if (data.healthCheck) return Date.now()
 
-  const authUser = await getAuthUser(context)
+  const userRecord = await getUserRecord(context)
 
-  if (!authUser) {
+  if (!userRecord) {
     throw new https.HttpsError(UNAUTHENTICATED, UNAUTHENTICATED)
   }
 
